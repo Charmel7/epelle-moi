@@ -1,7 +1,6 @@
-// main.dart - VERSION COMPLÈTE ET CORRIGÉE
+// main.dart - VERSION FINALE CORRIGÉE
 import 'dart:math' as math;
 
-import 'package:epellemoi/app_scalling.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_retriever/screen_retriever.dart';
@@ -18,6 +17,10 @@ void main() async {
   // Initialiser window_manager avant runApp
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
+
+  // DÉSACTIVEZ CES LIGNES POUR LE DÉBOGAGE
+  // debugPaintSizeEnabled = true;
+  // debugPaintBaselinesEnabled = true;
 
   runApp(const EpelleMoiApp());
 }
@@ -165,127 +168,30 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
     final competitionService = Provider.of<CompetitionService>(context);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // CONTENU PRINCIPAL
-          DualScreenLayout(
-            isProductionMode: _isProductionMode,
-            adminPanel: _estConfigure
-                ? ControlScreen(
-                    onReinitialiser: () {
-                      setState(() {
-                        _estConfigure = false;
-                      });
-                    },
-                    isProductionMode: _isProductionMode,
-                  )
-                : ScaledWidget(
-                    child: ConfigScreen(
-                      onConfigurationComplete: () {
-                        if (competitionService.mots.isNotEmpty &&
-                            competitionService.candidats.isNotEmpty) {
-                          setState(() {
-                            _estConfigure = true;
-                          });
-                        }
-                      },
-                    ),
-                  ),
-            projectionPanel: const ProjectionScreen(),
-          ),
-
-          // OVERLAY EN HAUT À DROITE (Switch mode)
-          Positioned(
-            top: 20,
-            right: 20,
-            child: Material(
-              type: MaterialType.transparency,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.8),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.or),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.5),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Titre
-                    Row(
-                      children: [
-                        Icon(
-                          _isProductionMode ? Icons.tv : Icons.desktop_windows,
-                          color: AppColors.or,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'MODE:',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Switch
-                    Switch(
-                      value: _isProductionMode,
-                      onChanged: _toggleProductionMode,
-                      activeColor: Colors.green,
-                      inactiveThumbColor: Colors.orange,
-                      activeTrackColor: Colors.green.withOpacity(0.5),
-                      inactiveTrackColor: Colors.orange.withOpacity(0.5),
-                    ),
-
-                    // Texte du mode
-                    Text(
-                      _isProductionMode ? 'PRODUCTION' : 'DÉVELOPPEMENT',
-                      style: TextStyle(
-                        color: _isProductionMode ? Colors.green : Colors.orange,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10,
-                        letterSpacing: 1,
-                      ),
-                    ),
-
-                    // Info écrans
-                    if (_isLoadingScreens)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.or,
-                          ),
-                        ),
-                      )
-                    else if (_screens.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          '${_screens.length} écran(s)',
-                          style: TextStyle(color: Colors.white70, fontSize: 9),
-                        ),
-                      ),
-                  ],
-                ),
+      // SUPPRIMEZ le Stack inutile, utilisez directement DualScreenLayout
+      body: DualScreenLayout(
+        isProductionMode: _isProductionMode,
+        adminPanel: _estConfigure
+            ? ControlScreen(
+                onReinitialiser: () {
+                  setState(() {
+                    _estConfigure = false;
+                  });
+                },
+                isProductionMode: _isProductionMode,
+              )
+            : ConfigScreen(
+                // SUPPRIMEZ ScaledWidget ici !
+                onConfigurationComplete: () {
+                  if (competitionService.mots.isNotEmpty &&
+                      competitionService.candidats.isNotEmpty) {
+                    setState(() {
+                      _estConfigure = true;
+                    });
+                  }
+                },
               ),
-            ),
-          ),
-        ],
+        projectionPanel: const ProjectionScreen(),
       ),
     );
   }
@@ -298,7 +204,6 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
 
   @override
   void onWindowClose() async {
-    // Sauvegarder l'état si nécessaire avant de fermer
     super.onWindowClose();
   }
 

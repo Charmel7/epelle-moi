@@ -25,7 +25,7 @@ class ControlScreen extends StatelessWidget {
         children: [
           // Header inspiré de l'affiche
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
+            padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 32),
             decoration: BoxDecoration(
               color: Colors.black,
               boxShadow: [
@@ -50,11 +50,13 @@ class ControlScreen extends StatelessWidget {
                           text:
                               competition.candidatActuel?.nom ??
                               'Aucun candidat',
+                          style: TextStyle(color: Colors.white),
                           color: AppColors.or,
                         ),
                         const SizedBox(width: 16),
                         _buildInfoBadge(
                           icon: Icons.star,
+                          style: TextStyle(color: Colors.white),
                           text:
                               'Score: ${competition.candidatActuel?.score ?? 0}',
                           color: Colors.green,
@@ -62,6 +64,7 @@ class ControlScreen extends StatelessWidget {
                         const SizedBox(width: 16),
                         _buildInfoBadge(
                           icon: Icons.flag,
+                          style: TextStyle(color: Colors.white),
                           text: competition.phaseActuelle.nom,
                           color: Colors.blue,
                         ),
@@ -75,7 +78,7 @@ class ControlScreen extends StatelessWidget {
 
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.only(left: 200, right: 50, top: 24),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -104,7 +107,7 @@ class ControlScreen extends StatelessWidget {
 
           // Barre inférieure
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 130),
             decoration: BoxDecoration(
               color: Colors.grey[50],
               border: Border(top: BorderSide(color: Colors.grey[200]!)),
@@ -120,7 +123,7 @@ class ControlScreen extends StatelessWidget {
                 const Expanded(
                   child: Text(
                     'Mode contrôle actif • Synchronisé avec l\'écran projection',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(fontSize: 10, color: Colors.grey),
                   ),
                 ),
                 ElevatedButton.icon(
@@ -132,7 +135,7 @@ class ControlScreen extends StatelessWidget {
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
-                      vertical: 12,
+                      vertical: 10,
                     ),
                   ),
                 ),
@@ -148,6 +151,7 @@ class ControlScreen extends StatelessWidget {
     required IconData icon,
     required String text,
     required Color color,
+    required TextStyle style,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -165,7 +169,7 @@ class ControlScreen extends StatelessWidget {
             text,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.black,
+              color: Colors.white,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -269,7 +273,7 @@ class ControlScreen extends StatelessWidget {
                             Text(
                               mot.mot.toUpperCase(),
                               style: const TextStyle(
-                                fontSize: 64,
+                                fontSize: 50,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.black,
                                 letterSpacing: 2,
@@ -460,7 +464,7 @@ class ControlScreen extends StatelessWidget {
                     child: Text(
                       saisie.isNotEmpty
                           ? saisie
-                          : 'Cliquez ici puis tapez au clavier...',
+                          : 'Cliquez et tapez au clavier |',
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w500,
