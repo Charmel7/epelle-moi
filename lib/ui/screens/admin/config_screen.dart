@@ -63,7 +63,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
               Container(
                 width: constraints.maxWidth,
                 padding: const EdgeInsets.symmetric(
-                  vertical: 50,
+                  vertical: 80,
                   horizontal: 50,
                 ),
                 decoration: BoxDecoration(

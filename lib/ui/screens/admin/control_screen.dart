@@ -178,6 +178,48 @@ class ControlScreen extends StatelessWidget {
     );
   }
 
+  // Ajoutez cette méthode dans la classe ControlScreen
+  void _verifierTousMotsUtilises(
+    BuildContext context,
+    CompetitionService competition,
+  ) {
+    if (competition.signalerTousMotsUtilises) {
+      // Réinitialiser le signalement après l'avoir affiché
+      Future.delayed(const Duration(milliseconds: 100), () {
+        competition.reinitialiserSignalement();
+      });
+
+      // Afficher un message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.info_outline, color: Colors.white),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Tous les mots ont été utilisés ! Les mots ont été réinitialisés automatiquement.',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: AppColors.or, // Utilisez votre couleur or
+          duration: Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          action: SnackBarAction(
+            label: 'OK',
+            textColor: Colors.white,
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+        ),
+      );
+    }
+  }
+
   Widget _buildWordPanel(BuildContext context) {
     return Consumer<CompetitionService>(
       builder: (context, competition, child) {
@@ -400,6 +442,7 @@ class ControlScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _buildProgressIndicator(context, competition),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -538,107 +581,117 @@ class ControlScreen extends StatelessWidget {
   }
 
   Widget _buildControlButtons(BuildContext context) {
-    final competition = Provider.of<CompetitionService>(context, listen: false);
-
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Text(
-            'CONTRÔLES PRINCIPAUX',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
-              letterSpacing: 1.5,
-            ),
+    return Consumer<CompetitionService>(
+      builder: (context, competition, child) {
+        return Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(height: 16),
-          Row(
+          child: Column(
             children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    competition.marquerCorrect();
-                    competition.tirerMotAleatoire();
-                  },
-                  icon: const Icon(Icons.check, size: 20),
-                  label: const Text('CORRECT'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green[50],
-                    foregroundColor: Colors.green[700],
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(color: Colors.green[100]!),
-                    ),
-                  ),
+              Text(
+                'CONTRÔLES PRINCIPAUX',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[600],
+                  letterSpacing: 1.5,
                 ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    competition.marquerIncorrect();
-                    competition.tirerMotAleatoire();
-                  },
-                  icon: const Icon(Icons.close, size: 20),
-                  label: const Text('INCORRECT'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red[50],
-                    foregroundColor: Colors.red[700],
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(color: Colors.red[100]!),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        competition.marquerCorrect();
+                        competition.tirerMotAleatoire();
+                        // Vérifier après le tirage
+                        _verifierTousMotsUtilises(context, competition);
+                      },
+                      icon: const Icon(Icons.check, size: 20),
+                      label: const Text('CORRECT'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green[50],
+                        foregroundColor: Colors.green[700],
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(color: Colors.green[100]!),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        competition.marquerIncorrect();
+                        competition.tirerMotAleatoire();
+                        // Vérifier après le tirage
+                        _verifierTousMotsUtilises(context, competition);
+                      },
+                      icon: const Icon(Icons.close, size: 20),
+                      label: const Text('INCORRECT'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red[50],
+                        foregroundColor: Colors.red[700],
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(color: Colors.red[100]!),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        competition.tirerMotAleatoire();
+                        // Vérifier après le tirage
+                        _verifierTousMotsUtilises(context, competition);
+                      },
+                      icon: const Icon(Icons.skip_next, size: 18),
+                      label: const Text('MOT SUIVANT'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        side: BorderSide(color: Colors.grey[400]!),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: competition.revelerMot,
+                      icon: const Icon(Icons.visibility, size: 18),
+                      label: const Text('RÉVÉLER'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        side: BorderSide(color: Colors.grey[400]!),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: competition.tirerMotAleatoire,
-                  icon: const Icon(Icons.skip_next, size: 18),
-                  label: const Text('MOT SUIVANT'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    side: BorderSide(color: Colors.grey[400]!),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: competition.revelerMot,
-                  icon: const Icon(Icons.visibility, size: 18),
-                  label: const Text('RÉVÉLER'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    side: BorderSide(color: Colors.grey[400]!),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -869,4 +922,74 @@ class ControlScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _buildProgressIndicator(
+  BuildContext context,
+  CompetitionService competition,
+) {
+  final stats = competition.getStatistiquesMots();
+  final total = stats['total'] as int;
+  final utilises = stats['utilises'] as int;
+
+  if (total == 0) return SizedBox();
+
+  final pourcentage = stats['pourcentageUtilises'] as int;
+
+  return Container(
+    margin: EdgeInsets.only(top: 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Progression des mots:',
+              style: TextStyle(fontSize: 11, color: Colors.grey[400]),
+            ),
+            Text(
+              '$pourcentage% ($utilises/$total)',
+              style: TextStyle(fontSize: 11, color: Colors.grey[400]),
+            ),
+          ],
+        ),
+        SizedBox(height: 4),
+        Container(
+          height: 6,
+          width: 200,
+          decoration: BoxDecoration(
+            color: Colors.grey[800],
+            borderRadius: BorderRadius.circular(3),
+          ),
+          child: Stack(
+            children: [
+              Container(
+                height: 6,
+                width: 200 * (pourcentage / 100),
+                decoration: BoxDecoration(
+                  color: pourcentage >= 100 ? AppColors.or : Colors.green,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (pourcentage >= 100)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, size: 12, color: AppColors.or),
+                SizedBox(width: 4),
+                Text(
+                  'Tous les mots ont été utilisés',
+                  style: TextStyle(fontSize: 11, color: AppColors.or),
+                ),
+              ],
+            ),
+          ),
+      ],
+    ),
+  );
 }
