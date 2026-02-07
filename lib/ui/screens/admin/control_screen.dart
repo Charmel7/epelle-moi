@@ -1,14 +1,13 @@
 // Nouvelle version complète de control_screen.dart
 import 'package:epellemoi/core/models/phase.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/competition_service.dart';
 import '../../widgets/header/competition_title.dart';
 
-class ControlScreen extends StatelessWidget {
+class ControlScreen extends StatefulWidget {
   final VoidCallback onReinitialiser;
 
   const ControlScreen({
@@ -16,6 +15,30 @@ class ControlScreen extends StatelessWidget {
     required this.onReinitialiser,
     required bool isProductionMode,
   });
+  @override
+  State<ControlScreen> createState() => _ControlScreenState();
+}
+
+class _ControlScreenState extends State<ControlScreen> {
+  // Ajoutez ces deux variables
+  TextEditingController? _saisieController;
+  FocusNode? _saisieFocusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialiser le contrôleur et le focus node
+    _saisieController = TextEditingController();
+    _saisieFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    // Nettoyer
+    _saisieController?.dispose();
+    _saisieFocusNode?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -425,13 +448,18 @@ class ControlScreen extends StatelessWidget {
   }
 
   Widget _buildSpellingInput(BuildContext context) {
-    // Déclarer un FocusNode pour capturer les entrées clavier
-    final focusNode = FocusNode();
-
     return Consumer<CompetitionService>(
       builder: (context, competition, child) {
         final saisie = competition.epellationSaisie;
         final motOfficiel = competition.motActuel?.orthographeOfficielle ?? '';
+
+        // Synchroniser le contrôleur avec la saisie actuelle
+        if (_saisieController!.text != saisie) {
+          _saisieController!.text = saisie;
+          _saisieController!.selection = TextSelection.collapsed(
+            offset: saisie.length,
+          );
+        }
 
         return Container(
           padding: const EdgeInsets.all(20),
@@ -442,7 +470,6 @@ class ControlScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildProgressIndicator(context, competition),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -467,57 +494,49 @@ class ControlScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Zone avec écouteur de clavier
-              RawKeyboardListener(
-                focusNode: focusNode,
-                onKey: (RawKeyEvent event) {
-                  if (event is RawKeyDownEvent) {
-                    final keyLabel = event.logicalKey.keyLabel;
-
-                    // Ajouter les lettres A-Z (majuscules)
-
-                    if (keyLabel.length == 1 &&
-                        keyLabel.toUpperCase() != keyLabel.toLowerCase()) {
-                      competition.ajouterLettre(keyLabel.toUpperCase());
-                    }
-                    // Gérer la barre d'espace (toujours disponible au clavier)
-                    else if (event.logicalKey == LogicalKeyboardKey.space) {
-                      competition.ajouterLettre(' ');
-                    }
-                    // Gérer backspace
-                    else if (event.logicalKey == LogicalKeyboardKey.backspace) {
+              // ZONE DE SAISIE SIMPLIFIÉE
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: TextField(
+                  controller: _saisieController,
+                  focusNode: _saisieFocusNode,
+                  maxLength: motOfficiel.isEmpty ? null : motOfficiel.length,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Cliquez et tapez au clavier |',
+                    hintStyle: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey,
+                      letterSpacing: 2,
+                      fontFamily: 'Courier',
+                    ),
+                    counterText: '',
+                  ),
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black,
+                    letterSpacing: 2,
+                    fontFamily: 'Courier',
+                  ),
+                  textCapitalization: TextCapitalization.characters,
+                  onChanged: (value) {
+                    // Mettre à jour le service sans tout effacer
+                    if (value.length > saisie.length) {
+                      // Ajouter seulement la nouvelle lettre
+                      String nouvelleLettre = value.substring(saisie.length);
+                      competition.ajouterLettre(nouvelleLettre);
+                    } else if (value.length < saisie.length) {
+                      // Supprimer une lettre
                       competition.supprimerLettre();
                     }
-                    // Gérer delete
-                    else if (event.logicalKey == LogicalKeyboardKey.delete) {
-                      competition.effacerEpellation();
-                    }
-                  }
-                },
-                child: GestureDetector(
-                  onTap: () {
-                    focusNode.requestFocus(); // Donne le focus quand on clique
                   },
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey[300]!),
-                    ),
-                    child: Text(
-                      saisie.isNotEmpty
-                          ? saisie
-                          : 'Cliquez et tapez au clavier |',
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                        letterSpacing: 2,
-                        fontFamily: 'Courier',
-                      ),
-                    ),
-                  ),
                 ),
               ),
 
@@ -526,7 +545,11 @@ class ControlScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => competition.supprimerLettre(),
+                      onPressed: () {
+                        competition.supprimerLettre();
+                        // Garder le focus
+                        _saisieFocusNode?.requestFocus();
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.grey[100],
                         foregroundColor: Colors.grey[700],
@@ -542,10 +565,13 @@ class ControlScreen extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => competition.reinitialiserChrono(),
+                      onPressed: () {
+                        competition.reinitialiserChrono();
+                        // Garder le focus
+                        _saisieFocusNode?.requestFocus();
+                      },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Colors.blue, // Couleur bleue pour reset
+                        backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -558,7 +584,11 @@ class ControlScreen extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => competition.effacerEpellation(),
+                      onPressed: () {
+                        competition.effacerEpellation();
+                        // Garder le focus
+                        _saisieFocusNode?.requestFocus();
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red[50],
                         foregroundColor: Colors.red[700],
@@ -910,7 +940,7 @@ class ControlScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              onReinitialiser();
+              //  onReinitialiser();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
             child: const Text(
