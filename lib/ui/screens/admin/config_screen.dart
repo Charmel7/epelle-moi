@@ -63,8 +63,8 @@ class _ConfigScreenState extends State<ConfigScreen> {
               Container(
                 width: constraints.maxWidth,
                 padding: const EdgeInsets.symmetric(
-                  vertical: 90,
-                  horizontal: 90,
+                  vertical: 50,
+                  horizontal: 50,
                 ),
                 decoration: BoxDecoration(
                   color: Colors.black,
@@ -682,7 +682,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
                               ),
                             ),
 
-                            const SizedBox(height: 32),
+                            const SizedBox(height: 12),
 
                             // Bouton de validation
                             SizedBox(
@@ -725,6 +725,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
                                 ),
                               ),
                             ),
+                            const SizedBox(height: 112),
                           ],
                         ),
                       ),

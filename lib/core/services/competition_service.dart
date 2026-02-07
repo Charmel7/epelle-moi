@@ -168,7 +168,7 @@ class CompetitionService extends ChangeNotifier {
   // Chronomètre
   void demarrerChrono() {
     _chronoTimer?.cancel();
-    _chronoRestant = 60;
+    _chronoRestant = 10;
 
     _chronoTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_chronoRestant > 0) {
@@ -180,10 +180,9 @@ class CompetitionService extends ChangeNotifier {
     });
   }
 
-  // Dans competition_service.dart - modifier la méthode reinitialiserChrono
   void reinitialiserChrono() {
     _chronoTimer?.cancel(); // Arrêter le timer existant
-    _chronoRestant = 60; // Remettre à 60 secondes
+    _chronoRestant = 10; // Remettre à 60 secondes
 
     // Lancer immédiatement un nouveau chronomètre
     _chronoTimer = Timer.periodic(const Duration(seconds: 1), (timer) {

@@ -10,7 +10,7 @@ class WindowService {
 
     final WindowOptions windowOptions = WindowOptions(
       size: const Size(3840, 1080),
-      minimumSize: const Size(2560, 720),
+      minimumSize: const Size(2560, 900),
       center: false,
       backgroundColor: Colors.black,
       skipTaskbar: false,

@@ -31,7 +31,7 @@ class CompetitionTitle extends StatelessWidget {
         Text(
           'CONCOURS',
           style: TextStyle(
-            fontSize: compact ? 12 : 14,
+            fontSize: compact ? 12 : 20,
             letterSpacing: 4,
             fontWeight: FontWeight.w300,
             color: secondaryColor,

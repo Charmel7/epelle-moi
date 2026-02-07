@@ -43,6 +43,7 @@ class ProjectionScreen extends StatelessWidget {
 
                 Column(
                   children: [
+                    const SizedBox(height: 40),
                     // En-tête
                     Container(
                       width: double.infinity,
@@ -62,7 +63,7 @@ class ProjectionScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
 
                     // Phase et candidat
                     Padding(
@@ -89,7 +90,7 @@ class ProjectionScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 12),
 
                           // Nom du candidat
                           Text(
@@ -109,7 +110,7 @@ class ProjectionScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 15),
 
                     // Zone d'épellation - AVEC CONTRAINTES
                     Expanded(
@@ -151,6 +152,7 @@ class ProjectionScreen extends StatelessWidget {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 40),
                   ],
                 ),
               ],

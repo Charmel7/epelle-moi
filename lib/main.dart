@@ -1,5 +1,5 @@
 // main.dart - VERSION FINALE CORRIGÉE
-import 'dart:math' as math;
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +8,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'core/constants/app_colors.dart';
 import 'core/services/competition_service.dart';
+import 'core/services/window_service.dart';
 import 'ui/layout/dual_screen_layout.dart';
 import 'ui/screens/admin/config_screen.dart';
 import 'ui/screens/admin/control_screen.dart';
@@ -21,7 +22,7 @@ void main() async {
   // DÉSACTIVEZ CES LIGNES POUR LE DÉBOGAGE
   // debugPaintSizeEnabled = true;
   // debugPaintBaselinesEnabled = true;
-
+  await WindowService.initialize();
   runApp(const EpelleMoiApp());
 }
 
@@ -64,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
   bool _estConfigure = false;
   bool _isProductionMode = true;
   List<Display> _screens = [];
-  bool _isLoadingScreens = false;
+  bool _isLoadingScreens = true;
 
   @override
   void initState() {
@@ -104,40 +105,61 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
   Future<void> _applyDisplayMode(bool productionMode) async {
     try {
       if (!productionMode || _screens.length < 2) {
-        // MODE DÉVELOPPEMENT ou seul écran
+        // Mode développement
         await windowManager.setSize(const Size(1920, 1080));
         await windowManager.center();
         await windowManager.setFullScreen(false);
-
         print('Mode développement activé (1920x1080)');
       } else {
-        // MODE PRODUCTION avec 2+ écrans
+        // MODE PRODUCTION - NOUVELLE VERSION
         final screen1 = _screens[0];
         final screen2 = _screens[1];
 
-        // Calculer la fenêtre qui couvre les 2 écrans
-        final left = screen1.visiblePosition!.dx;
-        final top = math.min(
-          screen1.visiblePosition!.dy,
-          screen2.visiblePosition!.dy,
-        );
-        final right = screen2.visiblePosition!.dx + screen2.size.width;
-        final bottom = math.max(
-          screen1.visiblePosition!.dy + screen1.size.height,
-          screen2.visiblePosition!.dy + screen2.size.height,
+        // LOGS POUR DEBUG
+        print('''
+=== CONFIGURATION DUAL SCREEN ===
+Écran 1 (PC):
+  Position: (${screen1.visiblePosition!.dx}, ${screen1.visiblePosition!.dy})
+  Taille: ${screen1.size.width}x${screen1.size.height}
+Écran 2 (Projecteur):
+  Position: (${screen2.visiblePosition!.dx}, ${screen2.visiblePosition!.dy})
+  Taille: ${screen2.size.width}x${screen2.size.height}
+''');
+
+        // OPTION 1: Utiliser la méthode "étendre" de WindowManager
+        // Définir la fenêtre pour couvrir les deux écrans
+        await windowManager.setPosition(
+          Offset(screen1.visiblePosition!.dx, screen1.visiblePosition!.dy),
         );
 
-        final width = right - left;
-        final height = bottom - top;
+        await windowManager.setSize(
+          Size(
+            screen1.size.width + screen2.size.width,
+            max(screen1.size.height, screen2.size.height) + 500,
+          ),
+        );
 
-        await windowManager.setBounds(Rect.fromLTWH(left, top, width, height));
+        // OPTION 2: Forcer le plein écran étendu
+        await windowManager.setFullScreen(true);
+        await Future.delayed(const Duration(milliseconds: 500));
         await windowManager.setFullScreen(false);
 
-        print('Mode production activé: ${width.toInt()}x${height.toInt()}');
+        print('''
+                === FENÊTRE CONFIGURÉE ===
+                Largeur totale: ${screen1.size.width + screen2.size.width}px
+                Hauteur: ${max(screen1.size.height, screen2.size.height)}px
+                Écran PC: ${screen1.size.width}px
+                Projecteur: ${screen2.size.width}px
+                ''');
+
+        // Vérifier que la fenêtre est bien positionnée
+        final bounds = await windowManager.getBounds();
+        print(
+          'Fenêtre actuelle: ${bounds.width}x${bounds.height} @ (${bounds.left}, ${bounds.top})',
+        );
       }
     } catch (e) {
       print('Erreur application mode: $e');
-      // En cas d'erreur, revenir au mode développement
       await windowManager.setSize(const Size(1920, 1080));
       await windowManager.center();
     }
@@ -149,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
     });
 
     await _applyDisplayMode(value);
-
+    //await _verifierEtAjusterAffichage();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -161,6 +183,52 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         duration: const Duration(seconds: 2),
       ),
     );
+  }
+
+  // Ajouter cette méthode dans _HomeScreenState
+  Future<void> _verifierConfigurationEcrans() async {
+    try {
+      final bounds = await windowManager.getBounds();
+      final screens = await screenRetriever.getAllDisplays();
+
+      print('''
+        === VÉRIFICATION CONFIGURATION ===
+        Fenêtre actuelle:
+          Position: (${bounds.left}, ${bounds.top})
+          Taille: ${bounds.width}x${bounds.height}
+        
+        Écrans détectés:''');
+
+      for (int i = 0; i < screens.length; i++) {
+        final screen = screens[i];
+        print(
+          '  Écran $i: ${screen.size.width}x${screen.size.height} @ (${screen.visiblePosition!.dx}, ${screen.visiblePosition!.dy})',
+        );
+      }
+
+      if (screens.length >= 2) {
+        final screen1 = screens[0];
+        final screen2 = screens[1];
+
+        // Vérifier le chevauchement
+        final fenetreDroite = bounds.left + bounds.width;
+        final ecran2Droite = screen2.visiblePosition!.dx + screen2.size.width;
+
+        print('''
+=== CHEVAUCHEMENT ===
+Fenêtre droite: ${fenetreDroite}px
+Écran 2 droite: ${ecran2Droite}px
+Différence: ${ecran2Droite - fenetreDroite}px
+      ''');
+
+        if (fenetreDroite < ecran2Droite - 50) {
+          print('⚠️ ATTENTION: La fenêtre ne couvre pas tout le projecteur!');
+          print('   Il manque ${(ecran2Droite - fenetreDroite).toInt()}px');
+        }
+      }
+    } catch (e) {
+      print('Erreur vérification: $e');
+    }
   }
 
   @override

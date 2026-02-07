@@ -432,6 +432,7 @@ class ControlScreen extends StatelessWidget {
                     final keyLabel = event.logicalKey.keyLabel;
 
                     // Ajouter les lettres A-Z (majuscules)
+
                     if (keyLabel.length == 1 &&
                         keyLabel.toUpperCase() != keyLabel.toLowerCase()) {
                       competition.ajouterLettre(keyLabel.toUpperCase());
