@@ -16,7 +16,7 @@ class CompetitionService extends ChangeNotifier {
   Word? _motActuel;
   String _epellationSaisie = '';
   bool _motRevele = false;
-  int _chronoRestant = 60;
+  int _chronoRestant = 120;
 
   Timer? _chronoTimer;
   bool _tousMotsUtilisesSignale = false;
@@ -154,7 +154,7 @@ class CompetitionService extends ChangeNotifier {
 
     _epellationSaisie = '';
     _motRevele = false;
-    _chronoRestant = 60;
+    _chronoRestant = 120;
 
     notifyListeners();
     demarrerChrono();

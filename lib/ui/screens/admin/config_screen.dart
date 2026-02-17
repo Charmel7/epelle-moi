@@ -83,7 +83,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
                       fit: BoxFit.scaleDown,
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
-                          maxWidth: constraints.maxWidth - 2,
+                          maxWidth: constraints.maxWidth,
                         ),
                         child: CompetitionTitle(
                           isDarkMode: true,
@@ -117,7 +117,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
                     child: Scrollbar(
                       thumbVisibility: true,
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.only(left: 160),
+                        padding: const EdgeInsets.only(left: 80),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [

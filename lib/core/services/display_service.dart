@@ -26,7 +26,7 @@ class DisplayService {
         print(
           'ATTENTION: Moins de 2 écrans détectés, passage en mode développement',
         );
-        await windowManager.setSize(const Size(1920, 1200));
+        await windowManager.setSize(const Size(1920, 1080));
         await windowManager.center();
         return;
       }
@@ -70,7 +70,7 @@ class DisplayService {
     } catch (e) {
       print('Erreur configuration dual screen: $e');
       // En cas d'erreur, revenir au mode développement
-      await windowManager.setSize(const Size(1920, 1200));
+      await windowManager.setSize(const Size(1920, 1080));
       await windowManager.center();
     }
   }

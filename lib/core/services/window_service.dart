@@ -50,7 +50,7 @@ class WindowService {
         );
 
         await windowManager.setBounds(Rect.fromLTRB(left, top, right, bottom));
-        await windowManager.setFullScreen(false);
+        await windowManager.setFullScreen(true);
       }
     } catch (e) {
       print('Erreur configuration dual screen: $e');

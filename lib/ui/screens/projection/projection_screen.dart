@@ -12,6 +12,8 @@ class ProjectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final competition = Provider.of<CompetitionService>(context);
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -20,34 +22,22 @@ class ProjectionScreen extends StatelessWidget {
           return Container(
             width: constraints.maxWidth,
             height: constraints.maxHeight,
+            margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.0),
+
             color: Colors.black,
             child: Stack(
               children: [
                 // Effet de fond minimaliste
-                Positioned(
-                  top: -100,
-                  right: -100,
-                  child: Container(
-                    width: 300,
-                    height: 300,
-                    decoration: BoxDecoration(
-                      gradient: RadialGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.03),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
                 Column(
                   children: [
-                    const SizedBox(height: 40),
-                    // En-tête
+                    // En-tête avec padding proportionnel
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 50),
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.symmetric(
+                        vertical: screenHeight * 0.05, // 5% de la hauteur
+                        horizontal: screenWidth * 0, // 5% de la largeur
+                      ),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
@@ -63,11 +53,12 @@ class ProjectionScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 10),
-
                     // Phase et candidat
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.03,
+                        vertical: screenHeight * 0.01,
+                      ),
                       child: Column(
                         children: [
                           // Phase
@@ -83,21 +74,21 @@ class ProjectionScreen extends StatelessWidget {
                             child: Text(
                               competition.phaseActuelle.nom.toUpperCase(),
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 18,
                                 color: Colors.white,
                                 letterSpacing: 2,
                                 fontWeight: FontWeight.w300,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: screenHeight * 0.01),
 
                           // Nom du candidat
                           Text(
                             competition.candidatActuel?.nom.toUpperCase() ??
                                 'EN ATTENTE',
-                            style: const TextStyle(
-                              fontSize: 36,
+                            style: TextStyle(
+                              fontSize: screenHeight * 0.035,
                               color: Colors.white,
                               fontWeight: FontWeight.w300,
                               letterSpacing: 1.5,
@@ -110,28 +101,31 @@ class ProjectionScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 15),
-
-                    // Zone d'épellation - AVEC CONTRAINTES
-                    Expanded(
+                    // Zone d'épellation - avec hauteur contrôlée
+                    Container(
+                      height: screenHeight * 0.25, // 25% de l'écran
                       child: Center(
                         child: SingleChildScrollView(
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 40, right: 70),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.05,
+                            ),
                             child: competition.motRevele
-                                ? _buildRevealedWord(competition)
-                                : _buildLiveSpelling(competition),
+                                ? _buildRevealedWord(competition, screenHeight)
+                                : _buildLiveSpelling(competition, screenHeight),
                           ),
                         ),
                       ),
                     ),
 
-                    // Chronomètre et score
+                    // Chronomètre et score en bas
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 30,
-                        horizontal: 40,
+                      height:
+                          screenHeight * 0.15, // J'ai ramener à 5% de l'écran
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.05,
+                        vertical: screenHeight * 0.02,
                       ),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -139,20 +133,19 @@ class ProjectionScreen extends StatelessWidget {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.5),
+                            Colors.black.withOpacity(0.95),
                           ],
                         ),
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          _buildTimer(competition),
-                          const SizedBox(width: 60),
-                          _buildScore(competition),
+                          _buildTimer(competition, screenHeight),
+                          _buildScore(competition, screenHeight),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 40),
                   ],
                 ),
               ],
@@ -163,7 +156,7 @@ class ProjectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTimer(CompetitionService competition) {
+  Widget _buildTimer(CompetitionService competition, double screenHeight) {
     final seconds = competition.chronoRestant;
     Color getTimerColor() {
       if (seconds > 30) return Colors.green;
@@ -173,21 +166,22 @@ class ProjectionScreen extends StatelessWidget {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'TEMPS RESTANT',
           style: TextStyle(
-            fontSize: 12,
+            fontSize: screenHeight * 0.02, // 1.8% de la hauteur
             color: Colors.white.withOpacity(0.5),
             letterSpacing: 2,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: screenHeight * 0.02),
         Text(
           '${(seconds ~/ 60).toString().padLeft(2, '0')}:'
           '${(seconds % 60).toString().padLeft(2, '0')}',
           style: TextStyle(
-            fontSize: 36,
+            fontSize: screenHeight * 0.04, // 4.5% de la hauteur
             color: getTimerColor(),
             fontWeight: FontWeight.w300,
             fontFamily: 'Courier',
@@ -197,23 +191,24 @@ class ProjectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildScore(CompetitionService competition) {
+  Widget _buildScore(CompetitionService competition, double screenHeight) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
           'SCORE',
           style: TextStyle(
-            fontSize: 12,
+            fontSize: screenHeight * 0.02, // 2% de la hauteur
             color: Colors.white.withOpacity(0.5),
             letterSpacing: 2,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: screenHeight * 0.01),
         Text(
           '${competition.candidatActuel?.score ?? 0}',
-          style: const TextStyle(
-            fontSize: 48,
+          style: TextStyle(
+            fontSize: screenHeight * 0.045, // 4,5% de la hauteur
             color: Colors.white,
             fontWeight: FontWeight.w300,
           ),
@@ -222,7 +217,10 @@ class ProjectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRevealedWord(CompetitionService competition) {
+  Widget _buildRevealedWord(
+    CompetitionService competition,
+    double screenHeight,
+  ) {
     final mot = competition.motActuel?.orthographeOfficielle ?? '';
     final estCorrect = competition.epellationEstCorrecte;
 
@@ -232,14 +230,14 @@ class ProjectionScreen extends StatelessWidget {
       children: [
         Icon(
           estCorrect ? Icons.check : Icons.close,
-          size: 64,
+          size: screenHeight * 0.07, // 7% de la hauteur
           color: estCorrect ? Colors.green : Colors.red,
         ),
-        const SizedBox(height: 32),
+        SizedBox(height: screenHeight * 0.02),
         Text(
           mot.toUpperCase(),
           style: TextStyle(
-            fontSize: 64,
+            fontSize: screenHeight * 0.07, // 7% de la hauteur
             color: estCorrect ? Colors.green : Colors.red,
             fontWeight: FontWeight.w900,
             letterSpacing: 3,
@@ -248,11 +246,11 @@ class ProjectionScreen extends StatelessWidget {
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: screenHeight * 0.015),
         Text(
           estCorrect ? 'CORRECT' : 'INCORRECT',
           style: TextStyle(
-            fontSize: 24,
+            fontSize: screenHeight * 0.025, // 2.5% de la hauteur
             color: estCorrect ? Colors.green : Colors.red,
             fontWeight: FontWeight.w300,
             letterSpacing: 2,
@@ -262,57 +260,64 @@ class ProjectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLiveSpelling(CompetitionService competition) {
+  Widget _buildLiveSpelling(
+    CompetitionService competition,
+    double screenHeight,
+  ) {
     final saisie = competition.epellationSaisie;
     final motOfficiel = competition.motActuel?.orthographeOfficielle ?? '';
+    final screenWidth = 1920;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (saisie.isNotEmpty)
-          // Utiliser un Container avec contraintes pour éviter l'overflow
+          // Conteneur avec hauteur maximale et scroll si nécessaire
           ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 800, // Largeur maximale pour les lettres
+            constraints: BoxConstraints(
+              maxWidth: screenWidth * 0.8,
+              maxHeight: screenHeight * 0.3,
             ),
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 4,
-              runSpacing: 4,
-              children: List.generate(saisie.length, (index) {
-                bool estCorrecte = false;
-                if (index < motOfficiel.length) {
-                  estCorrecte =
-                      saisie[index].toUpperCase() ==
-                      motOfficiel[index].toUpperCase();
-                }
+            child: SingleChildScrollView(
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: screenWidth * 0.01,
+                runSpacing: screenHeight * 0.01,
+                children: List.generate(saisie.length, (index) {
+                  bool estCorrecte = false;
+                  if (index < motOfficiel.length) {
+                    estCorrecte =
+                        saisie[index].toUpperCase() ==
+                        motOfficiel[index].toUpperCase();
+                  }
 
-                return Container(
-                  width: 60,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
-                    border: Border.all(
-                      color: estCorrecte
-                          ? Colors.green.withOpacity(0.5)
-                          : Colors.white.withOpacity(0.2),
-                      width: 2,
+                  return Container(
+                    width: screenHeight * 0.06, // 6% de la hauteur
+                    height: screenHeight * 0.08, // 8% de la hauteur
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      border: Border.all(
+                        color: estCorrecte
+                            ? Colors.green.withOpacity(0.5)
+                            : Colors.white.withOpacity(0.2),
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(6),
                     ),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Center(
-                    child: Text(
-                      saisie[index] == ' ' ? '␣' : saisie[index],
-                      style: TextStyle(
-                        fontSize: 36,
-                        color: estCorrecte ? Colors.green : Colors.white,
-                        fontWeight: FontWeight.w700,
+                    child: Center(
+                      child: Text(
+                        saisie[index] == ' ' ? '␣' : saisie[index],
+                        style: TextStyle(
+                          fontSize: screenHeight * 0.04, // 4% de la hauteur
+                          color: estCorrecte ? Colors.green : Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
+              ),
             ),
           )
         else
@@ -321,16 +326,16 @@ class ProjectionScreen extends StatelessWidget {
               Text(
                 '...',
                 style: TextStyle(
-                  fontSize: 72,
+                  fontSize: screenHeight * 0.08, // 8% de la hauteur
                   color: Colors.white.withOpacity(0.1),
                   fontWeight: FontWeight.w300,
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: screenHeight * 0.02),
               Text(
                 'EN ATTENTE DE LA PREMIÈRE LETTRE',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: screenHeight * 0.016, // 1.6% de la hauteur
                   color: Colors.white.withOpacity(0.3),
                   letterSpacing: 2,
                 ),
@@ -338,12 +343,12 @@ class ProjectionScreen extends StatelessWidget {
               ),
             ],
           ),
-        const SizedBox(height: 40),
+        SizedBox(height: screenHeight * 0.02),
         if (motOfficiel.isNotEmpty && saisie.isNotEmpty)
           Text(
-            '${saisie.length}  lettres',
+            '${saisie.length} lettre${saisie.length > 1 ? 's' : ''}',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: screenHeight * 0.018,
               color: Colors.white.withOpacity(0.5),
             ),
           ),

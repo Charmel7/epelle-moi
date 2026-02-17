@@ -541,6 +541,7 @@ class _ControlScreenState extends State<ControlScreen> {
               ),
 
               const SizedBox(height: 16),
+
               Row(
                 children: [
                   Expanded(
@@ -940,7 +941,7 @@ class _ControlScreenState extends State<ControlScreen> {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              //  onReinitialiser();
+              widget.onReinitialiser();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
             child: const Text(
