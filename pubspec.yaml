@@ -59,7 +59,9 @@ dev_dependencies:
   animated_text_kit: ^4.3.0
   flutter_animate: ^4.5.2
   simple_animations: ^5.2.0
-
+  just_audio: ^0.9.36
+  just_audio_windows: ^0.2.2
+  shared_preferences: ^2.2.2
 
 
 # For information on the generic Dart part of this file, see the
@@ -84,7 +86,8 @@ flutter:
       fonts:
         - asset: assets/fonts/RobotoMono.ttf
   assets:
-      - assets/
+      - assets/sounds/correct.mp3
+      - assets/sounds/incorrect.mp3
       - data/
 
   # To add assets to your application, add an assets section, like this:

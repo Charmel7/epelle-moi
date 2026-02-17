@@ -207,7 +207,7 @@ class CompetitionService extends ChangeNotifier {
   // Chronomètre
   void demarrerChrono() {
     _chronoTimer?.cancel();
-    _chronoRestant = 10;
+    _chronoRestant = 120;
 
     _chronoTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_chronoRestant > 0) {

@@ -22,7 +22,7 @@ class DualScreenLayout extends StatefulWidget {
 class _DualScreenLayoutState extends State<DualScreenLayout> {
   late List<Display> _screens;
   bool _isInitialized = false;
-  double _screen1Width = 1900; // Valeur par défaut
+  double _screen1Width = 1920; // Valeur par défaut
   double _screen2Width = 1920; // Valeur par défaut
   double _screen1Height = 1080; // Valeur par défaut
   double _screen2Height = 1080; // Valeur par défaut
@@ -122,7 +122,7 @@ Ratio: ${(_screen1Width / _screen2Width).toStringAsFixed(2)}
             Positioned(
               left: 0,
               top: 0,
-              width: _screen1Width * 1,
+              width: _screen1Width,
               height: _screen1Height,
               child: Container(
                 color: AppColors.bleuMarine,
@@ -132,9 +132,9 @@ Ratio: ${(_screen1Width / _screen2Width).toStringAsFixed(2)}
 
             // Écran Projecteur (Projection) - positionné à droite
             Positioned(
-              left: _screen1Width, // Commence après l'écran 1
+              left: _screen1Width - 3, // Commence après l'écran 1
               top: 0,
-              width: _screen2Width * 0.90,
+              width: _screen2Width * 0.8,
               height: _screen2Height,
               child: Container(
                 color: Colors.black,

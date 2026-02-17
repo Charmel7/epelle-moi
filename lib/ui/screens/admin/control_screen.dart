@@ -1,5 +1,6 @@
 // Nouvelle version complète de control_screen.dart
 import 'package:epellemoi/core/models/phase.dart';
+import 'package:epellemoi/core/services/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -638,6 +639,7 @@ class _ControlScreenState extends State<ControlScreen> {
                     child: ElevatedButton.icon(
                       onPressed: () {
                         competition.marquerCorrect();
+                        AudioService().playCorrect();
                         competition.tirerMotAleatoire();
                         // Vérifier après le tirage
                         _verifierTousMotsUtilises(context, competition);
@@ -660,6 +662,7 @@ class _ControlScreenState extends State<ControlScreen> {
                     child: ElevatedButton.icon(
                       onPressed: () {
                         competition.marquerIncorrect();
+                        AudioService().playIncorrect();
                         competition.tirerMotAleatoire();
                         // Vérifier après le tirage
                         _verifierTousMotsUtilises(context, competition);
@@ -702,11 +705,23 @@ class _ControlScreenState extends State<ControlScreen> {
                     ),
                   ),
                   const SizedBox(width: 6),
+                  // Dans control_screen.dart, partie du bouton RÉVÉLER
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: competition.revelerMot,
+                      onPressed: () {
+                        competition.revelerMot();
+                        // Jouer le son approprié après révélation
+                        if (competition.epellationEstCorrecte) {
+                          competition.marquerCorrect();
+                          AudioService().playCorrect();
+                        } else {
+                          competition.marquerIncorrect();
+                          AudioService().playIncorrect();
+                        }
+                      },
                       icon: const Icon(Icons.visibility, size: 18),
                       label: const Text('RÉVÉLER'),
+
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.black,
                         side: BorderSide(color: Colors.grey[400]!),

@@ -7,6 +7,7 @@ import 'package:screen_retriever/screen_retriever.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'core/constants/app_colors.dart';
+import 'core/services/audio_service.dart';
 import 'core/services/competition_service.dart';
 import 'core/services/window_service.dart';
 import 'ui/layout/dual_screen_layout.dart';
@@ -23,6 +24,7 @@ void main() async {
   // debugPaintSizeEnabled = true;
   // debugPaintBaselinesEnabled = true;
   await WindowService.initialize();
+  await AudioService().preloadSounds();
   runApp(const EpelleMoiApp());
 }
 

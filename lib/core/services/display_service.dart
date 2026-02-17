@@ -1,4 +1,3 @@
-// core/services/display_service.dart - Version corrigée
 import 'dart:math' as math;
 
 import 'package:flutter/animation.dart';
