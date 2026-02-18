@@ -80,6 +80,30 @@ class CsvService {
     return converter.convert(rows);
   }
 
+  Future<void> saveWordsToLastFile(List<Word> words) async {
+    try {
+      final path = await PersistenceService.getLastCsvPath();
+      if (path == null || path.isEmpty) {
+        print(
+          'Aucun chemin de fichier CSV sauvegardé. Impossible de mettre à jour.',
+        );
+        return;
+      }
+
+      final file = File(path);
+      if (!await file.exists()) {
+        print('Le fichier CSV d\'origine n\'existe plus au chemin: $path');
+        return;
+      }
+
+      final csvContent = exportWordsToCsv(words);
+      await file.writeAsString(csvContent, flush: true);
+      print('Fichier CSV mis à jour avec le nouveau statut des mots.');
+    } catch (e) {
+      print('Erreur lors de la mise à jour du fichier CSV: $e');
+    }
+  }
+
   Future<List<Word>> loadWordsFromFile() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(

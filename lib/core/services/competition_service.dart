@@ -24,7 +24,8 @@ class CompetitionService extends ChangeNotifier {
   Timer? _chronoTimer;
   bool _tousMotsUtilisesSignale = false;
   bool _candidatesLoaded = false;
-
+  final CsvService _csvService = CsvService();
+  Timer? _csvSaveTimer;
   // Getters
   Phase get phaseActuelle => _phaseActuelle;
   List<Candidate> get candidats {
@@ -56,6 +57,14 @@ class CompetitionService extends ChangeNotifier {
     if (_motActuel == null) return false;
     return _epellationSaisie.toUpperCase() ==
         _motActuel!.orthographeOfficielle.toUpperCase();
+  }
+
+  void _scheduleCsvUpdate() {
+    _csvSaveTimer?.cancel();
+    _csvSaveTimer = Timer(const Duration(seconds: 2), () async {
+      await _csvService.saveWordsToLastFile(_mots);
+      _csvSaveTimer = null;
+    });
   }
 
   Map<String, dynamic> getStatistiquesMots() {
@@ -165,6 +174,7 @@ class CompetitionService extends ChangeNotifier {
         final randomIndex = random.nextInt(_mots.length);
         _motActuel = _mots[randomIndex];
         _motActuel?.estUtilise = true;
+        _scheduleCsvUpdate();
 
         // Afficher un message dans les logs pour le développeur
         print("Tous les mots ont été utilisés - Réinitialisation automatique");
@@ -176,6 +186,7 @@ class CompetitionService extends ChangeNotifier {
       final randomIndex = random.nextInt(motsNonUtilises.length);
       _motActuel = motsNonUtilises[randomIndex];
       _motActuel?.estUtilise = true;
+      _scheduleCsvUpdate();
     }
 
     _epellationSaisie = '';
