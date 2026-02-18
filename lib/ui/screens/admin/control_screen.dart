@@ -1,7 +1,7 @@
 import 'package:epellemoi/core/models/phase.dart';
 import 'package:epellemoi/core/services/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' show Consumer;
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/competition_service.dart';
@@ -52,7 +52,7 @@ class _ControlScreenState extends State<ControlScreen> {
               color: Colors.black,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -178,9 +178,9 @@ class _ControlScreenState extends State<ControlScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

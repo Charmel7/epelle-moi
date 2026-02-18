@@ -70,7 +70,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
                   color: Colors.black,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
@@ -97,7 +97,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
                       'CONFIGURATION DU CONCOURS',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         letterSpacing: 1.5,
                         fontWeight: FontWeight.w300,
                       ),
