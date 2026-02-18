@@ -17,7 +17,9 @@ class CompetitionService extends ChangeNotifier {
   String _epellationSaisie = '';
   bool _motRevele = false;
   int _chronoRestant = 120;
-
+  Timer? _inactivityTimer;
+  bool _chronoEnMarche = false;
+  static const Duration _inactivityDelay = Duration(seconds: 3);
   Timer? _chronoTimer;
   bool _tousMotsUtilisesSignale = false;
 
@@ -113,7 +115,12 @@ class CompetitionService extends ChangeNotifier {
   // Gestion des mots
   void tirerMotAleatoire() {
     // Arrêter le timer existant
-    // _chronoTimer?.cancel();
+
+    _chronoTimer?.cancel();
+    _chronoTimer = null;
+    _inactivityTimer?.cancel();
+    _inactivityTimer = null;
+    _chronoEnMarche = false;
 
     if (_mots.isEmpty) {
       print("Aucun mot disponible dans la liste");
@@ -154,17 +161,18 @@ class CompetitionService extends ChangeNotifier {
 
     _epellationSaisie = '';
     _motRevele = false;
-    _chronoRestant = 120;
+    //_chronoRestant = 120;
 
     notifyListeners();
-    demarrerChrono();
   }
 
   // Saisie d'épellation
+
   void ajouterLettre(String lettre) {
     if (lettre.length == 1 && lettre.isNotEmpty) {
       _epellationSaisie += lettre.toUpperCase();
       notifyListeners();
+      _onUserActivity(); // <-- AJOUT
     }
   }
 
@@ -175,17 +183,21 @@ class CompetitionService extends ChangeNotifier {
         _epellationSaisie.length - 1,
       );
       notifyListeners();
+      _onUserActivity(); // <-- AJOUT
     }
   }
 
   void effacerEpellation() {
     _epellationSaisie = '';
     notifyListeners();
+    _onUserActivity(); // <-- AJOUT
   }
 
   // Révélation
   void revelerMot() {
     _motRevele = true;
+    _arreterChrono();
+    _inactivityTimer?.cancel();
     notifyListeners();
   }
 
@@ -204,17 +216,48 @@ class CompetitionService extends ChangeNotifier {
   }
 
   // Chronomètre
-  void demarrerChrono() {
-    _chronoTimer?.cancel();
-    _chronoRestant = 120;
-
+  void _demarrerChrono() {
+    if (_chronoTimer != null || _chronoRestant <= 0 || _motRevele) return;
+    _chronoEnMarche = true;
     _chronoTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_chronoRestant > 0) {
         _chronoRestant--;
         notifyListeners();
+        if (_chronoRestant == 0) {
+          timer.cancel();
+          _chronoTimer = null;
+          _chronoEnMarche = false;
+        }
       } else {
         timer.cancel();
+        _chronoTimer = null;
+        _chronoEnMarche = false;
       }
+    });
+  }
+
+  void _arreterChrono() {
+    _chronoTimer?.cancel();
+    _chronoTimer = null;
+    _chronoEnMarche = false;
+  }
+
+  void _onUserActivity() {
+    // Ne pas démarrer si le mot est révélé
+    if (_motRevele) return;
+
+    // Annuler le timer d'inactivité précédent
+    _inactivityTimer?.cancel();
+
+    // Démarrer le chrono s'il n'est pas en marche
+    if (!_chronoEnMarche && _chronoRestant > 0) {
+      _demarrerChrono();
+    }
+
+    // Planifier un nouveau timer d'inactivité
+    _inactivityTimer = Timer(_inactivityDelay, () {
+      _arreterChrono();
+      _inactivityTimer = null;
     });
   }
 
@@ -267,8 +310,10 @@ class CompetitionService extends ChangeNotifier {
   }
 
   @override
+  @override
   void dispose() {
     _chronoTimer?.cancel();
+    _inactivityTimer?.cancel();
     super.dispose();
   }
 }
