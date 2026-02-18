@@ -2,6 +2,8 @@ import 'dart:convert' show utf8;
 import 'dart:io';
 
 import 'package:csv/csv.dart';
+import 'package:epellemoi/core/services/persistence_service.dart'
+    show PersistenceService;
 import 'package:file_picker/file_picker.dart';
 
 import '../models/word.dart';
@@ -104,6 +106,7 @@ class CsvService {
         else if (file.path != null) {
           final fileContent = File(file.path!);
           csvContent = await fileContent.readAsString();
+          await PersistenceService.saveLastCsvPath(file.path!);
         } else {
           throw Exception('Impossible de lire le fichier');
         }

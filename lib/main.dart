@@ -19,6 +19,7 @@ import 'ui/screens/projection/projection_screen.dart';
 void main() async {
   // Initialiser window_manager avant runApp
   WidgetsFlutterBinding.ensureInitialized();
+  final competitionService = CompetitionService();
   await windowManager.ensureInitialized();
 
   // DÉSACTIVEZ CES LIGNES POUR LE DÉBOGAGE
@@ -27,6 +28,7 @@ void main() async {
   // debugPaintBaselinesEnabled = true;
   await WindowService.initialize();
   await AudioService().preloadSounds();
+  await competitionService.loadPersistedData();
   runApp(const EpelleMoiApp());
 }
 

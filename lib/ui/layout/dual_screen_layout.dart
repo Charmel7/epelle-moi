@@ -132,7 +132,7 @@ Ratio: ${(_screen1Width / _screen2Width).toStringAsFixed(2)}
 
             // Écran Projecteur (Projection) - positionné à droite
             Positioned(
-              left: _screen1Width - 3, // Commence après l'écran 1
+              left: _screen1Width - 5, // Commence après l'écran 1
               top: 0,
               width: _screen2Width * 0.8,
               height: _screen2Height,

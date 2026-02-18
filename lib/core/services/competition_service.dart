@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:epellemoi/core/services/persistence_service.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/candidate.dart';
@@ -90,11 +91,19 @@ class CompetitionService extends ChangeNotifier {
   // Gestion des candidats
   void ajouterCandidat(String nom) {
     _candidats.add(Candidate(nom: nom));
+    PersistenceService.saveCandidates(_candidats);
     notifyListeners();
   }
 
   void supprimerCandidat(String id) {
     _candidats.removeWhere((c) => c.id == id);
+    PersistenceService.saveCandidates(_candidats);
+    notifyListeners();
+  }
+
+  void reinitialiserCandidats() {
+    _candidats.clear();
+    _candidatActuel = null;
     notifyListeners();
   }
 
@@ -205,12 +214,14 @@ class CompetitionService extends ChangeNotifier {
   void marquerCorrect() {
     if (_candidatActuel != null) {
       _candidatActuel!.score++;
+      PersistenceService.saveCandidates(_candidats);
       notifyListeners();
     }
   }
 
   void marquerIncorrect() {
     if (_candidatActuel != null) {
+      PersistenceService.saveCandidates(_candidats);
       notifyListeners();
     }
   }
@@ -262,7 +273,7 @@ class CompetitionService extends ChangeNotifier {
   }
 
   void reinitialiserChrono() {
-    _chronoTimer?.cancel();
+    _chronoTimer?.cancel(); //
     _chronoRestant = 120;
 
     // Lancer immédiatement un nouveau chronomètre
@@ -287,6 +298,7 @@ class CompetitionService extends ChangeNotifier {
     try {
       final csvService = CsvService();
       final motsCharges = await csvService.loadWordsFromFile();
+
       _tousMotsUtilisesSignale = false;
       _mots = motsCharges;
       notifyListeners();
@@ -296,6 +308,16 @@ class CompetitionService extends ChangeNotifier {
       print('Erreur lors du chargement du fichier: $e');
       rethrow;
     }
+  }
+
+  Future<void> loadPersistedData() async {
+    // Restaurer les candidats
+    final savedCandidates = await PersistenceService.loadCandidates();
+    if (savedCandidates.isNotEmpty) {
+      _candidats = savedCandidates;
+      // Optionnel : restaurer le candidat sélectionné (si vous l'avez aussi sauvegardé)
+    }
+    notifyListeners();
   }
 
   void reinitialiserSignalement() {
