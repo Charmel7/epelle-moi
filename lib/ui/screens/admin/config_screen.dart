@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../../core/models/candidate.dart';
 import '../../../core/models/phase.dart';
 import '../../../core/services/competition_service.dart';
+import '../../../core/services/persistence_service.dart';
 import '../../widgets/header/competition_title.dart';
 
 class ConfigScreen extends StatefulWidget {
@@ -39,9 +40,10 @@ class _ConfigScreenState extends State<ConfigScreen> {
     final documentsDir = await getApplicationDocumentsDirectory();
     final cheminParDefaut = '${documentsDir.path}/mots.csv';
 
-    setState(() {
-      _cheminFichier = cheminParDefaut;
-      _cheminController.text = cheminParDefaut;
+    setState(() async {
+      _cheminFichier = (await PersistenceService.getLastCsvPath())!;
+      _cheminController.text = (await PersistenceService.getLastCsvPath())!;
+      await PersistenceService.loadCandidates();
     });
   }
 
@@ -59,7 +61,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
         builder: (context, constraints) {
           return Column(
             children: [
-              // Header fixe - plein largeur
+              // Header
               Container(
                 width: constraints.maxWidth,
                 padding: const EdgeInsets.symmetric(
@@ -107,7 +109,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
                 ),
               ),
 
-              // Contenu principal - largeur réduite de 30% et centré
+              // Contenu principal
               Expanded(
                 child: Center(
                   child: ConstrainedBox(
@@ -872,6 +874,8 @@ class _ConfigScreenState extends State<ConfigScreen> {
       final file = File(chemin);
       if (!await file.exists()) {
         throw Exception('Le fichier n\'existe pas: $chemin');
+      } else {
+        await PersistenceService.saveLastCsvPath(chemin);
       }
 
       final csvContent = await file.readAsString();
@@ -907,7 +911,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '❌ Erreur: $e',
+              'Erreur: $e',
               style: const TextStyle(color: Colors.white),
             ),
             backgroundColor: Colors.black,

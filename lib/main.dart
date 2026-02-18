@@ -1,7 +1,7 @@
-// main.dart - VERSION FINALE CORRIGÉE
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_retriever/screen_retriever.dart'
     show Display, screenRetriever;
@@ -15,6 +15,11 @@ import 'ui/layout/dual_screen_layout.dart';
 import 'ui/screens/admin/config_screen.dart';
 import 'ui/screens/admin/control_screen.dart';
 import 'ui/screens/projection/projection_screen.dart';
+
+void printAppDir() async {
+  final dir = await getApplicationSupportDirectory();
+  print('Application support directory: ${dir.path}');
+}
 
 void main() async {
   // Initialiser window_manager avant runApp
@@ -78,6 +83,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
     super.initState();
     _initWindowManager();
     _detectScreens();
+    printAppDir();
   }
 
   Future<void> _initWindowManager() async {

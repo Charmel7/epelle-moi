@@ -10,7 +10,7 @@ import '../models/word.dart';
 import 'csv_service.dart';
 
 class CompetitionService extends ChangeNotifier {
-  Phase _phaseActuelle = Phase.qualifications;
+  Phase _phaseActuelle = Phase.demiFinale;
   List<Candidate> _candidats = [];
   List<Word> _mots = [];
   Candidate? _candidatActuel;
@@ -23,10 +23,18 @@ class CompetitionService extends ChangeNotifier {
   static const Duration _inactivityDelay = Duration(seconds: 3);
   Timer? _chronoTimer;
   bool _tousMotsUtilisesSignale = false;
+  bool _candidatesLoaded = false;
 
   // Getters
   Phase get phaseActuelle => _phaseActuelle;
-  List<Candidate> get candidats => _candidats;
+  List<Candidate> get candidats {
+    if (_candidats.isEmpty && !_candidatesLoaded) {
+      _candidatesLoaded = true;
+      loadPersistedData();
+    }
+    return _candidats;
+  }
+
   bool get tousMotsUtilises => motsNonUtilises.isEmpty && _mots.isNotEmpty;
   List<Word> get mots => _mots;
   Candidate? get candidatActuel => _candidatActuel;
@@ -104,6 +112,8 @@ class CompetitionService extends ChangeNotifier {
   void reinitialiserCandidats() {
     _candidats.clear();
     _candidatActuel = null;
+    _candidatesLoaded = true;
+    PersistenceService.saveCandidates(_candidats);
     notifyListeners();
   }
 
@@ -181,7 +191,7 @@ class CompetitionService extends ChangeNotifier {
     if (lettre.length == 1 && lettre.isNotEmpty) {
       _epellationSaisie += lettre.toUpperCase();
       notifyListeners();
-      _onUserActivity(); // <-- AJOUT
+      _onUserActivity();
     }
   }
 
@@ -192,7 +202,7 @@ class CompetitionService extends ChangeNotifier {
         _epellationSaisie.length - 1,
       );
       notifyListeners();
-      _onUserActivity(); // <-- AJOUT
+      _onUserActivity();
     }
   }
 
@@ -315,8 +325,12 @@ class CompetitionService extends ChangeNotifier {
     final savedCandidates = await PersistenceService.loadCandidates();
     if (savedCandidates.isNotEmpty) {
       _candidats = savedCandidates;
+      _candidatesLoaded = true;
       // Optionnel : restaurer le candidat sélectionné (si vous l'avez aussi sauvegardé)
     }
+    print(
+      'Chargement des candidats persistés: ${savedCandidates.length} trouvés',
+    );
     notifyListeners();
   }
 
@@ -331,7 +345,6 @@ class CompetitionService extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
   @override
   void dispose() {
     _chronoTimer?.cancel();
