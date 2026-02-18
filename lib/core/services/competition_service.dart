@@ -296,17 +296,6 @@ class CompetitionService extends ChangeNotifier {
   void reinitialiserChrono() {
     _chronoTimer?.cancel(); //
     _chronoRestant = 120;
-
-    // Lancer immédiatement un nouveau chronomètre
-    _chronoTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_chronoRestant > 0) {
-        _chronoRestant--;
-        notifyListeners();
-      } else {
-        timer.cancel();
-      }
-    });
-
     notifyListeners();
   }
 
