@@ -113,7 +113,7 @@ class CompetitionService extends ChangeNotifier {
   // Gestion des mots
   void tirerMotAleatoire() {
     // Arrêter le timer existant
-    _chronoTimer?.cancel();
+    // _chronoTimer?.cancel();
 
     if (_mots.isEmpty) {
       print("Aucun mot disponible dans la liste");
@@ -199,7 +199,6 @@ class CompetitionService extends ChangeNotifier {
 
   void marquerIncorrect() {
     if (_candidatActuel != null) {
-      // Logique supplémentaire si nécessaire
       notifyListeners();
     }
   }
@@ -220,8 +219,8 @@ class CompetitionService extends ChangeNotifier {
   }
 
   void reinitialiserChrono() {
-    _chronoTimer?.cancel(); // Arrêter le timer existant
-    _chronoRestant = 10; // Remettre à 60 secondes
+    _chronoTimer?.cancel();
+    _chronoRestant = 120;
 
     // Lancer immédiatement un nouveau chronomètre
     _chronoTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -267,7 +266,6 @@ class CompetitionService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Nettoyage
   @override
   void dispose() {
     _chronoTimer?.cancel();

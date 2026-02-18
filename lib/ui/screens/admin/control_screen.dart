@@ -1,4 +1,3 @@
-// Nouvelle version complète de control_screen.dart
 import 'package:epellemoi/core/models/phase.dart';
 import 'package:epellemoi/core/services/audio_service.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +20,6 @@ class ControlScreen extends StatefulWidget {
 }
 
 class _ControlScreenState extends State<ControlScreen> {
-  // Ajoutez ces deux variables
   TextEditingController? _saisieController;
   FocusNode? _saisieFocusNode;
 
@@ -202,7 +200,7 @@ class _ControlScreenState extends State<ControlScreen> {
     );
   }
 
-  // Ajoutez cette méthode dans la classe ControlScreen
+  // Vérifier si tous les mots ont été utilisés
   void _verifierTousMotsUtilises(
     BuildContext context,
     CompetitionService competition,
@@ -213,7 +211,8 @@ class _ControlScreenState extends State<ControlScreen> {
         competition.reinitialiserSignalement();
       });
 
-      // Afficher un message
+      // Afficher un message si tous les mots chargés ont été utilisés
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -228,7 +227,7 @@ class _ControlScreenState extends State<ControlScreen> {
               ),
             ],
           ),
-          backgroundColor: AppColors.or, // Utilisez votre couleur or
+          backgroundColor: AppColors.or,
           duration: Duration(seconds: 4),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -257,6 +256,7 @@ class _ControlScreenState extends State<ControlScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _buildProgressIndicator(context, competition),
               // En-tête du mot
               Container(
                 padding: const EdgeInsets.all(20),
@@ -495,7 +495,7 @@ class _ControlScreenState extends State<ControlScreen> {
               ),
               const SizedBox(height: 16),
 
-              // ZONE DE SAISIE SIMPLIFIÉE
+              // ZONE DE SAISIE
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -691,6 +691,7 @@ class _ControlScreenState extends State<ControlScreen> {
                         competition.tirerMotAleatoire();
                         // Vérifier après le tirage
                         _verifierTousMotsUtilises(context, competition);
+                        // J'ai changé la logique du timer pour qu'il essaie de ne pas reinitialiser le timer si on ne lui autorise explicitement !
                       },
                       icon: const Icon(Icons.skip_next, size: 18),
                       label: const Text('MOT SUIVANT'),
@@ -705,12 +706,11 @@ class _ControlScreenState extends State<ControlScreen> {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  // Dans control_screen.dart, partie du bouton RÉVÉLER
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
                         competition.revelerMot();
-                        // Jouer le son approprié après révélation
+
                         if (competition.epellationEstCorrecte) {
                           competition.marquerCorrect();
                           AudioService().playCorrect();
@@ -846,9 +846,12 @@ class _ControlScreenState extends State<ControlScreen> {
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8),
                                 child: InkWell(
-                                  onTap: () => competition.selectionnerCandidat(
-                                    candidat.id,
-                                  ),
+                                  onTap: () {
+                                    competition.selectionnerCandidat(
+                                      candidat.id,
+                                    );
+                                    competition.reinitialiserChrono();
+                                  },
                                   borderRadius: BorderRadius.circular(8),
                                   child: Container(
                                     padding: const EdgeInsets.all(12),

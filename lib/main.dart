@@ -3,7 +3,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_retriever/screen_retriever.dart';
+import 'package:screen_retriever/screen_retriever.dart'
+    show Display, screenRetriever;
 import 'package:window_manager/window_manager.dart';
 
 import 'core/constants/app_colors.dart';
@@ -21,6 +22,7 @@ void main() async {
   await windowManager.ensureInitialized();
 
   // DÉSACTIVEZ CES LIGNES POUR LE DÉBOGAGE
+  // Important!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // debugPaintSizeEnabled = true;
   // debugPaintBaselinesEnabled = true;
   await WindowService.initialize();

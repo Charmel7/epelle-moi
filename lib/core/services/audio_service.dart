@@ -1,4 +1,4 @@
-import 'package:just_audio/just_audio.dart';
+import 'package:just_audio/just_audio.dart' show AudioPlayer;
 
 class AudioService {
   static final AudioService _instance = AudioService._internal();
@@ -10,7 +10,8 @@ class AudioService {
   // Préchargement facultatif
   Future<void> preloadSounds() async {
     try {
-      // On peut précharger en récupérant les sources, mais ce n'est pas obligatoire
+      // On précharge nos sons ici
+
       await _player.setAsset('assets/sounds/correct.mp3');
       await _player.setAsset('assets/sounds/incorrect.mp3');
     } catch (e) {
