@@ -1,1 +1,1 @@
-Télechargez l'intégralité du dossier 
+Télechargez l'intégralité du dossier (install.zip)
