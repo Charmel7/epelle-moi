@@ -9,7 +9,7 @@ Application Flutter Desktop pour la gestion de concours d'épellation.
 - Chronomètre intégré et gestion des scores minimale
 
 
-## A la base,télécharger le dossier [epelle-moi/install](installation ) pour tester ...
+## A la base,télécharger le dossier [epelle-moi/install](installation ) pour tester
 
 
 
