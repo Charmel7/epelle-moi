@@ -1,7 +1,7 @@
 import 'package:epellemoi/core/models/phase.dart';
 import 'package:epellemoi/core/services/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart' show Consumer;
+import "package:provider/provider.dart" show Consumer;
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/competition_service.dart';
@@ -411,6 +411,7 @@ class _ControlScreenState extends State<ControlScreen> {
                           ),
                         ),
                       ],
+
                       const SizedBox(height: 16),
                       Wrap(
                         spacing: 8,
@@ -420,6 +421,8 @@ class _ControlScreenState extends State<ControlScreen> {
                           _buildCategoryChip(mot.natureGrammaticale),
                           if (mot.etymologie.isNotEmpty)
                             _buildCategoryChip(mot.etymologie),
+                          if (mot.prononciation.isNotEmpty)
+                            _buildCategoryChip(mot.prononciation),
                         ],
                       ),
                     ],

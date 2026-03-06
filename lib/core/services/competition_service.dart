@@ -20,7 +20,7 @@ class CompetitionService extends ChangeNotifier {
   int _chronoRestant = 120;
   Timer? _inactivityTimer;
   bool _chronoEnMarche = false;
-  static const Duration _inactivityDelay = Duration(seconds: 3);
+  static const Duration _inactivityDelay = Duration(seconds: 10);
   Timer? _chronoTimer;
   bool _tousMotsUtilisesSignale = false;
   bool _candidatesLoaded = false;
